@@ -16,19 +16,13 @@ Clona el repositorio en tu máquina local:
 git clone https://github.com/MileneDanelli/laravel11-api-stackoverflow.git
 cd laravel11-api-stackoverflow
 
-### 1. Instala las Dependencias
-
-composer update
-composer install
-./vendor/bin/sail up
-
-### 2. Copia el archivo de ejemplo de configuración
-
-cp .env.example .env
-
 ### 3. Ejecuta las migraciones
 
 ./vendor/bin/sail artisan migrate
+
+### 2. Inicia los contenedores
+
+./vendor/bin/sail up
 
 ### 4. Ejemplo de Solicitud
 
