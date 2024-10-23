@@ -18,6 +18,8 @@ cd laravel11-api-stackoverflow
 
 ### 1. Instala las Dependencias
 
+composer update
+composer install
 ./vendor/bin/sail up
 
 ### 2. Copia el archivo de ejemplo de configuración
