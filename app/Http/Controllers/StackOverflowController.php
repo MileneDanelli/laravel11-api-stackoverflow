@@ -6,7 +6,8 @@ use App\Models\StackOverflowQuery;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
-use Illuminate\Support\Facades\DB;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 
 class StackOverflowController extends Controller
 {
@@ -40,14 +41,35 @@ class StackOverflowController extends Controller
             $url .= '&' . http_build_query($queryParams);
         }
 
-        $response = $this->client->get($url);
-        $data = json_decode($response->getBody()->getContents(), true);
+        try {
+            $response = $this->client->get($url);
+            $data = json_decode($response->getBody()->getContents(), true);
 
-        StackOverflowQuery::create([
-            'query' => json_encode($queryParams),
-            'response' => json_encode($data),
-        ]);
+            StackOverflowQuery::create([
+                'query' => json_encode($queryParams),
+                'response' => json_encode($data),
+            ]);
 
-        return $data;
+            return response()->json($data, 200);
+        } catch (RequestException $e) {
+            $errorMessage = $e->hasResponse()
+                ? $e->getResponse()->getBody()->getContents()
+                : $e->getMessage();
+
+            return response()->json([
+                'error' => 'Request error to StackOverflow API',
+                'message' => $errorMessage,
+            ], $e->getCode() ?: 500);
+        } catch (ConnectException $e) {
+            return response()->json([
+                'error' => 'Connection error',
+                'message' => 'Failed to connect to the StackOverflow API',
+            ], 503);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Unexpected error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
